@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Set the local directory path
+LOCAL_DIR="/home/rbc-preprod-user/RBCPREPRODYAMLFILES/ApplicationLogs"
+
+# Define the list of prefixes for pods to copy logs from
+PREFIXES=("instr-" "restui-" "scheduler-" "simulator-" "txnprocessor-")
+
+# Get the list of pods and loop through each one
+kubectl get pods --no-headers -o custom-columns=":metadata.name" | while read -r pod_name; do
+    # Check if the pod name starts with any of the specified prefixes
+    for prefix in "${PREFIXES[@]}"; do
+        if [[ "$pod_name" == "$prefix"* ]]; then
+            # Copy logs from the current pod
+            if kubectl cp "$pod_name:/usr/local/logs" "$LOCAL_DIR"; then
+                echo "Logs successfully copied from $pod_name"
+            else
+                echo "Failed to copy logs from $pod_name"
+            fi
+            break
+        fi
+    done
+done
