@@ -1,6 +1,7 @@
 import subprocess
 import tkinter as tk
 from tkinter import messagebox
+import requests
 
 class SimpleApp:
     def __init__(self, master):
@@ -19,14 +20,20 @@ class SimpleApp:
         self.status_button = tk.Button(master, text="Check Status", command=self.check_status)
         self.status_button.pack()
 
+        self.delete_logs_button = tk.Button(master, text="Delete Logs", command=self.delete_logs)
+        self.delete_logs_button.pack()
+
+        self.check_ui_button = tk.Button(master, text="Check UI", command=self.check_ui_availability)
+        self.check_ui_button.pack()
+
         self.running = False
 
     def start_application(self):
         # Logic to start the application
         if not self.running:
             try:
-                # Execute the script remotely using SSH
-                command = 'ssh administrator@10.0.6.55 "/home/administrator/GS_Deployment/GS_VolPay_Prod_ACH/Script/start.sh"'
+                # Execute the appstart.sh script remotely using SSH
+                command = 'ssh administrator@10.0.6.55 "/home/administrator/GS_Deployment/GS_VolPay_Prod_ACH/Script/appstart.sh"'
                 subprocess.run(command, shell=True, check=True)
                 
                 print("Application started successfully.")
@@ -41,11 +48,59 @@ class SimpleApp:
 
     def stop_application(self):
         # Logic to stop the application
-        pass
+        try:
+            # Execute the appstop.sh script remotely using SSH
+            command = 'ssh administrator@10.0.6.55 "/home/administrator/GS_Deployment/GS_VolPay_Prod_ACH/Script/appstop.sh"'
+            subprocess.run(command, shell=True, check=True)
+            
+            print("Application stopped successfully.")
+            self.running = False
+            self.status_label.config(text="Application is stopped", fg="red")
+            messagebox.showinfo("Success", "Application stopped successfully.")
+        except subprocess.CalledProcessError as e:
+            print("Error occurred while stopping application:", e)
+            messagebox.showerror("Error", f"Error occurred while stopping application: {e}")
 
     def check_status(self):
         # Logic to check the status of the application
-        pass
+        try:
+            # Execute the appstatus.sh script remotely using SSH
+            command = 'ssh administrator@10.0.6.55 "/home/administrator/GS_Deployment/GS_VolPay_Prod_ACH/Script/appstatus.sh"'
+            subprocess.run(command, shell=True, check=True)
+            
+            print("Application status checked.")
+            # Add logic to update UI based on status
+        except subprocess.CalledProcessError as e:
+            print("Error occurred while checking application status:", e)
+            messagebox.showerror("Error", f"Error occurred while checking application status: {e}")
+
+    def delete_logs(self):
+        # Logic to delete logs
+        try:
+            # Execute the deletelogs.sh script remotely using SSH
+            command = 'ssh administrator@10.0.6.55 "/path/to/deletelogs.sh"'
+            subprocess.run(command, shell=True, check=True)
+            
+            print("Logs deleted successfully.")
+            # Add logic to update UI or display message to the user
+        except subprocess.CalledProcessError as e:
+            print("Error occurred while deleting logs:", e)
+            messagebox.showerror("Error", f"Error occurred while deleting logs: {e}")
+
+    def check_ui_availability(self):
+        # Logic to check if UI is up and running
+        ui_url = "https://10.0.6.55:8443/VolPayUI/#/login?a=1656940779516"
+        try:
+            response = requests.get(ui_url, verify=False)
+            if response.status_code == 200:
+                print("UI is up and running.")
+                messagebox.showinfo("UI Availability", "UI is up and running!")
+            else:
+                print("UI is not running. Status code:", response.status_code)
+                messagebox.showwarning("UI Availability", f"UI is not running. Status code: {response.status_code}")
+        except Exception as e:
+            print("Error occurred while checking UI availability:", e)
+            messagebox.showerror("Error", f"Error occurred while checking UI availability: {e}")
 
 def main():
     root = tk.Tk()
