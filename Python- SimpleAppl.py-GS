@@ -33,7 +33,7 @@ class SimpleApp:
         if not self.running:
             try:
                 # Execute the appstart.sh script remotely using SSH
-                command = 'ssh administrator@10.0.6.55 "/home/administrator/GS_Deployment/GS_VolPay_Prod_ACH/Script/appstart.sh"'
+                command = 'ssh administrator@10.0.6.55 "/home/administrator/GS_Deployment/GS_VolPay_Prod_ACH/Script/appstartpython.sh"'
                 subprocess.run(command, shell=True, check=True)
                 
                 print("Application started successfully.")
@@ -78,7 +78,7 @@ class SimpleApp:
         # Logic to delete logs
         try:
             # Execute the deletelogs.sh script remotely using SSH
-            command = 'ssh administrator@10.0.6.55 "/path/to/deletelogs.sh"'
+            command = 'ssh administrator@10.0.6.55 "/home/administrator/GS_Deployment/GS_VolPay_Prod_ACH/Script/deletelogs.sh"'
             subprocess.run(command, shell=True, check=True)
             
             print("Logs deleted successfully.")
